@@ -1,105 +1,22 @@
 package ru.practicum.shareit.item.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.InputDataException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemMapper;
-import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.validate.ValidateItemData;
-import ru.practicum.shareit.user.service.UserService;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-@Slf4j
-public class ItemService {
+public interface ItemService {
 
 
-    private final ItemRepository itemRepository;
-    private final UserService userService;
-    private final ValidateItemData validateItemData;
+    public ItemDto addItem(ItemDto itemDto, Integer userId);
+    public ItemDto getItemById(int id);
 
-    @Autowired
-    public ItemService(ItemRepository itemRepository, UserService userService, ValidateItemData validateItemData) {
-        this.itemRepository = itemRepository;
-        this.userService = userService;
-        this.validateItemData = validateItemData;
-    }
+    public List<ItemDto> getItemsByUserId(int userId);
+    public List<ItemDto> getItemsBySubString(String text);
+    public List<ItemDto> getAllItems(Integer userId);
 
+    public ItemDto updateItem(ItemDto itemDto, Integer userId);
 
-    public ItemDto addItem(ItemDto itemDto, Integer userId) {
-        Item item = ItemMapper.fromItemDto(itemDto);
-        item.setUserId(userId);
-        if (userId == null) {
-            throw new ValidationException("Отсутствует id пользователя, создавший данную вещь");
-        }
-        if (!userService.isContainsUser(userId)) {
-            throw new InputDataException("Пользователь с id=" + userId + " не найден в БД");
-        }
-        if (validateItemData.checkAllData(item)) {
-            item.setId(userId);
-            return ItemMapper.toItemDto(itemRepository.addItem(item));
-        } else {
-            throw new ValidationException("Ошибка во входных данных");
-        }
-    }
-
-    public ItemDto getItemById(int id) {
-        if (isContainItem(id)) {
-            return ItemMapper.toItemDto(itemRepository.getItemById(id));
-        } else {
-            throw new InputDataException("Вещь по id не найдена");
-        }
-    }
-
-    public List<ItemDto> getItemsByUserId(int userId) {
-        return itemRepository.getItemsByUserId(userId)
-                .stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<ItemDto> getItemsBySubString(String text) {
-        return itemRepository.getItemsBySubString(text)
-                .stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<ItemDto> getAllItems(Integer userId) {
-        if (userId != null) {
-            return getItemsByUserId(userId);
-        } else {
-            return itemRepository.getAllItems()
-                    .stream()
-                    .map(ItemMapper::toItemDto)
-                    .collect(Collectors.toList());
-        }
-    }
-
-    public ItemDto updateItem(ItemDto itemDto, Integer userId) {
-        if (userId == null) {
-            throw new ValidationException("Отсутствует id пользователя, создавший данную вещь");
-        }
-        Item itemFromDb = itemRepository.getItemById(itemDto.getId());
-        if (itemFromDb.getUserId() == userId) {
-            Item item = ItemMapper.fromItemDto(itemDto);
-            return ItemMapper.toItemDto(itemRepository.updateItem(item));
-        } else {
-            throw new InputDataException("Id пользователя не совпадает с id создавшего вещь пользователя");
-        }
-    }
-
-    public void deleteItem(int id) {
-        itemRepository.deleteItem(id);
-    }
-
-    public boolean isContainItem(int id) {
-        return itemRepository.isContainItem(id);
-    }
+    public void deleteItem(int id) ;
+    public boolean isContainItem(int id);
 }

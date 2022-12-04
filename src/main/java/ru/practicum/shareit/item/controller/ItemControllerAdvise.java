@@ -14,6 +14,7 @@ import ru.practicum.shareit.exception.ValidationException;
 @Service
 @ControllerAdvice
 public class ItemControllerAdvise {
+
     @ExceptionHandler
     public ResponseEntity<String> handleIncorrectValidation(ValidationException e) {
         log.warn("При обработке запроса возникло исключение: " + e.getMessage());
@@ -37,4 +38,5 @@ public class ItemControllerAdvise {
         log.warn("При обработке запроса возникло исключение: " + e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
+
 }

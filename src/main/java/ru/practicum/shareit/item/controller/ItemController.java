@@ -67,28 +67,29 @@ public class ItemController {
         log.info("Получен запрос к эндпоинту: DELETE /item");
         itemService.deleteItem(id);
     }
+/*
+    @ExceptionHandler
+    public ResponseEntity<String> handleIncorrectValidation(ValidationException e) {
+        log.warn("При обработке запроса возникло исключение: " + e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 
-//    @ExceptionHandler
-//    public ResponseEntity<String> handleIncorrectValidation(ValidationException e) {
-//        log.warn("При обработке запроса возникло исключение: " + e.getMessage());
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-//    }
-//
-//    @ExceptionHandler
-//    public ResponseEntity<String> handleException(Exception e) {
-//        log.warn("При обработке запроса возникло исключение " + e.getMessage());
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
-//
-//    @ExceptionHandler
-//    public ResponseEntity<String> handleNotFoundException(InputDataException e) {
-//        log.warn("При обработке запроса возникло исключение: " + e.getMessage());
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-//    }
-//
-//    @ExceptionHandler
-//    public ResponseEntity<String> handleConflictDataException(InputExistDataException e) {
-//        log.warn("При обработке запроса возникло исключение: " + e.getMessage());
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-//    }
+    @ExceptionHandler
+    public ResponseEntity<String> handleException(Exception e) {
+        log.warn("При обработке запроса возникло исключение " + e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleNotFoundException(InputDataException e) {
+        log.warn("При обработке запроса возникло исключение: " + e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleConflictDataException(InputExistDataException e) {
+        log.warn("При обработке запроса возникло исключение: " + e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    }
+*/
 }

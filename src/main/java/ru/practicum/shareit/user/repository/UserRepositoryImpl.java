@@ -3,22 +3,21 @@ package ru.practicum.shareit.user.repository;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class UserRepositoryImpl implements UserRepository {
 
     private final Map<Integer, User> users = new HashMap<>();
     private int id = 0;
+private HashSet<String> emailBase = new HashSet<>();
 
     @Override
     public User addUser(User user) {
         int id = getId();
         user.setId(id);
         users.put(id, user);
+        emailBase.add(user.getEmail());
         return user;
     }
 
@@ -40,7 +39,9 @@ public class UserRepositoryImpl implements UserRepository {
             userFromMemory.setName(user.getName());
         }
         if (user.getEmail() != null) {
+            emailBase.remove(userFromMemory.getEmail());
             userFromMemory.setEmail(user.getEmail());
+            emailBase.add(userFromMemory.getEmail());
         }
         users.put(id, userFromMemory);
         return userFromMemory;
@@ -48,6 +49,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void deleteUser(int id) {
+        emailBase.remove(getUser(id).getEmail());
         users.remove(id);
     }
 
@@ -58,16 +60,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean isExistEmail(String email) {
-        boolean isExistEmail = false;
-        for (User user :users.values()) {
-            if (user.getEmail().equals(email)) {
-                isExistEmail = true;
-                break;
-            }
-        }
-        return isExistEmail;
-    }
+        return emailBase.contains(email);
 
+    }
     private int getId() {
         id++;
         return id;
