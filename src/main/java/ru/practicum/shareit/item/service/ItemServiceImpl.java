@@ -48,6 +48,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Ошибка во входных данных");
         }
     }
+
     @Override
     public ItemDto getItemById(int id) {
         if (isContainItem(id)) {
@@ -56,6 +57,7 @@ public class ItemServiceImpl implements ItemService {
             throw new InputDataException("Вещь по id не найдена");
         }
     }
+
     @Override
     public List<ItemDto> getItemsByUserId(int userId) {
         return itemRepository.getItemsByUserId(userId)
@@ -63,6 +65,7 @@ public class ItemServiceImpl implements ItemService {
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<ItemDto> getItemsBySubString(String text) {
         return itemRepository.getItemsBySubString(text)
@@ -70,6 +73,7 @@ public class ItemServiceImpl implements ItemService {
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<ItemDto> getAllItems(Integer userId) {
         if (userId != null) {
@@ -81,6 +85,7 @@ public class ItemServiceImpl implements ItemService {
                     .collect(Collectors.toList());
         }
     }
+
     @Override
     public ItemDto updateItem(ItemDto itemDto, Integer userId) {
         if (userId == null) {
@@ -94,10 +99,12 @@ public class ItemServiceImpl implements ItemService {
             throw new InputDataException("Id пользователя не совпадает с id создавшего вещь пользователя");
         }
     }
+
     @Override
     public void deleteItem(int id) {
         itemRepository.deleteItem(id);
     }
+
     @Override
     public boolean isContainItem(int id) {
         return itemRepository.isContainItem(id);

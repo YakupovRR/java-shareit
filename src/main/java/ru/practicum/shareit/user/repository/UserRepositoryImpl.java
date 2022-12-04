@@ -10,7 +10,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     private final Map<Integer, User> users = new HashMap<>();
     private int id = 0;
-private HashSet<String> emailBase = new HashSet<>();
+    private HashSet<String> emailBase = new HashSet<>();
 
     @Override
     public User addUser(User user) {
@@ -63,6 +63,7 @@ private HashSet<String> emailBase = new HashSet<>();
         return emailBase.contains(email);
 
     }
+
     private int getId() {
         id++;
         return id;

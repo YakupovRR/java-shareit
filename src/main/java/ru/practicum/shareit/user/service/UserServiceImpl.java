@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Одно или несколько условий не выполняются");
         }
     }
+
     @Override
     public UserDto getUser(int id) {
         if (    isContainsUser(id)) {
@@ -49,6 +50,7 @@ public class UserServiceImpl implements UserService {
             throw new InputDataException("Пользователь с таким id не найден");
         }
     }
+
     @Override
     public List<UserDto> getAllUsers() {
         return userRepository.getAllUsers()
@@ -56,6 +58,7 @@ public class UserServiceImpl implements UserService {
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
+
     @Override
     public UserDto updateUser(UserDto userDto, int id) {
         User user = UserMapper.fromUserDto(userDto);
@@ -73,14 +76,17 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Одно или несколько условий не выполняются");
         }
     }
+
     @Override
     public void deleteUser(int id) {
         userRepository.deleteUser(id);
     }
+
     @Override
     public boolean isContainsUser(int id) {
         return userRepository.isContainUser(id);
     }
+
     @Override
     public boolean isExistEmail(String email) {
         return userRepository.isExistEmail(email);
