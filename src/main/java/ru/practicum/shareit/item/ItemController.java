@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.controller;
+package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +67,7 @@ public class ItemController {
         log.info("Получен запрос к эндпоинту: DELETE /item");
         itemService.deleteItem(id);
     }
-/*
+
     @ExceptionHandler
     public ResponseEntity<String> handleIncorrectValidation(ValidationException e) {
         log.warn("При обработке запроса возникло исключение: " + e.getMessage());
@@ -91,5 +91,5 @@ public class ItemController {
         log.warn("При обработке запроса возникло исключение: " + e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
-*/
+
 }

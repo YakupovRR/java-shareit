@@ -57,18 +57,18 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item updateItem(Item item) {
         int idItem = item.getId();
-        Item itemDb = items.get(idItem);
+        Item newItem = items.get(idItem);
         if (item.getName() != null) {
-            itemDb.setName(item.getName());
+            newItem.setName(item.getName());
         }
         if (item.getDescription() != null) {
-            itemDb.setDescription(item.getDescription());
+            newItem.setDescription(item.getDescription());
         }
         if (item.getAvailable() != null) {
-            itemDb.setAvailable(item.getAvailable());
+            newItem.setAvailable(item.getAvailable());
         }
-        items.put(idItem, itemDb);
-        return itemDb;
+        items.put(idItem, newItem);
+        return newItem;
     }
 
     @Override
