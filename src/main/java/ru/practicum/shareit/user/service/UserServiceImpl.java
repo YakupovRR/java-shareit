@@ -26,7 +26,8 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.validateUserData = validateUserData;
     }
-@Override
+
+    @Override
     public UserDto addUser(UserDto userDto) {
         User user = UserMapper.fromUserDto(userDto);
         if (validateUserData.checkAllData(user)) {
