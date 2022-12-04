@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUser(int id) {
-        if (    isContainsUser(id)) {
+        if (isContainsUser(id)) {
             return UserMapper.toUserDto(userRepository.getUser(id));
         } else {
             log.warn("Запрос к эндпоинту GET /users/{} не обработан", id);
