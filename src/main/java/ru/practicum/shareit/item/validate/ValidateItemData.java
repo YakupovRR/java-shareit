@@ -2,13 +2,18 @@ package ru.practicum.shareit.item.validate;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.InputDataException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.ItemMapper;
+import ru.practicum.shareit.user.service.UserService;
 
 @Slf4j
 @Component
 public class ValidateItemData {
 
     private Item item;
+    private UserService userService;
 
     private void setItem(Item item) {
         this.item = item;
@@ -47,5 +52,9 @@ public class ValidateItemData {
         } else {
             return true;
         }
+    }
+
+    public boolean validateAddItem (Integer userId, Item item) {
+        return (userId != null)&& (userService.isContainsUser(userId)) && checkAllData(item);
     }
 }

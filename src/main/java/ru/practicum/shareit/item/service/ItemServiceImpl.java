@@ -31,17 +31,11 @@ public class ItemServiceImpl implements ItemService {
         this.validateItemData = validateItemData;
     }
 
-@Override
+    @Override
     public ItemDto addItem(ItemDto itemDto, Integer userId) {
         Item item = ItemMapper.fromItemDto(itemDto);
         item.setUserId(userId);
-        if (userId == null) {
-            throw new ValidationException("Отсутствует id пользователя, создавший данную вещь");
-        }
-        if (!userService.isContainsUser(userId)) {
-            throw new InputDataException("Пользователь с id=" + userId + " не найден в БД");
-        }
-        if (validateItemData.checkAllData(item)) {
+        if (validateItemData.validateAddItem(userId, item)) {
             item.setId(userId);
             return ItemMapper.toItemDto(itemRepository.addItem(item));
         } else {
