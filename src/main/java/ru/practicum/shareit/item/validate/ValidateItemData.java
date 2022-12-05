@@ -2,10 +2,7 @@ package ru.practicum.shareit.item.validate;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.InputDataException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 @Slf4j
@@ -21,11 +18,7 @@ public class ValidateItemData {
 
     public boolean checkAllData(Item item) {
         setItem(item);
-        if (isCorrectName() && isCorrectDescription() && isCorrectAvailable()) {
-            return true;
-        } else {
-            return false;
-        }
+        return  (isCorrectName() && isCorrectDescription() && isCorrectAvailable());
     }
 
     public boolean isCorrectName() {
@@ -47,14 +40,10 @@ public class ValidateItemData {
     }
 
     public boolean isCorrectAvailable() {
-        if (item.getAvailable() == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return  (item.getAvailable() != null);
     }
 
-    public boolean validateAddItem (Integer userId, Item item) {
-        return (userId != null)&& (userService.isContainsUser(userId)) && checkAllData(item);
+    public boolean validateAddItem(Integer userId, Item item) {
+        return (userId != null) && (userService.isContainsUser(userId)) && checkAllData(item);
     }
 }
