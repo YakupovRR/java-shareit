@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
-
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final ValidateItemData validateItemData;
@@ -35,7 +34,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto addItem(ItemDto itemDto, Integer userId) {
         Item item = ItemMapper.fromItemDto(itemDto);
         item.setUserId(userId);
-        if (validateItemData.validateAddItem(userId, item)) {
+        if (validateItemData.checkAllData(userId, item, userService)) {
             item.setId(userId);
             return ItemMapper.toItemDto(itemRepository.addItem(item));
         } else {

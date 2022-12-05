@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.validate;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.InputDataException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -10,15 +12,28 @@ import ru.practicum.shareit.user.service.UserService;
 public class ValidateItemData {
 
     private Item item;
+    private Integer userId;
+
     private UserService userService;
 
     private void setItem(Item item) {
         this.item = item;
     }
 
-    public boolean checkAllData(Item item) {
+    private void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    private void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    public boolean checkAllData(Integer userId, Item item, UserService userService) {
         setItem(item);
-        return  (isCorrectName() && isCorrectDescription() && isCorrectAvailable());
+        setUserId(userId);
+        setUserService(userService);
+        return (isCorrectName() && isCorrectDescription() && isCorrectAvailable() && userIdNotNull() &&
+                isContainsUser());
     }
 
     public boolean isCorrectName() {
@@ -40,10 +55,27 @@ public class ValidateItemData {
     }
 
     public boolean isCorrectAvailable() {
-        return  (item.getAvailable() != null);
+        if (item.getAvailable() == null) {
+            log.warn("Ошибка во входных данных. Не заполнено поле доступность вещи");
+            return false;
+        } else {
+            return (item.getAvailable() != null);
+        }
     }
 
-    public boolean validateAddItem(Integer userId, Item item) {
-        return (userId != null) && (userService.isContainsUser(userId)) && checkAllData(item);
+    public boolean userIdNotNull() {
+        if (userId == null) {
+            throw new ValidationException("Отсутствует id пользователя, создавший данную вещь");
+        } else {
+            return true;
+        }
+    }
+
+    public boolean isContainsUser() {
+        if (!userService.isContainsUser(userId)) {
+            throw new InputDataException("Пользователь с id=" + userId + " не найден");
+        } else {
+            return true;
+        }
     }
 }
