@@ -9,7 +9,6 @@ import ru.practicum.shareit.exception.InputDataException;
 import ru.practicum.shareit.exception.InputExistDataException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
@@ -76,5 +75,4 @@ public class UserController {
         log.warn("При обработке запроса возникло исключение: " + e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
-
 }

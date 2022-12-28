@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.InputDataException;
 import ru.practicum.shareit.exception.InputExistDataException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.model.Comment;
 
 import java.util.List;
 
@@ -36,16 +38,25 @@ public class ItemController {
         return new ResponseEntity<>(itemService.addItem(itemDto, userId), HttpStatus.CREATED);
     }
 
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader(HEADER_USER_ID) int userId, @PathVariable int itemId,
+                                 @RequestBody CommentDto commentDto) {
+        log.info("Получен запрос к эндпоинту: POST /{itemId}/comment");
+        Comment comment = itemService.addComment(userId, itemId, CommentMapper.toComment(commentDto));
+        return CommentMapper.toCommentDto(comment);
+    }
+
     @GetMapping
     public List<ItemDto> getAllItem(@RequestHeader(value = HEADER_USER_ID, required = false) Integer userId) {
-        log.info("Получен запрос к эндпоинту: GET /items");
+        log.info("Получен запрос к эндпоинту: GET /items, user id = " + userId);
         return itemService.getAllItems(userId);
     }
 
     @GetMapping("/{id}")
-    public ItemDto getItemById(@PathVariable("id") int id) {
-        log.info("Получен запрос к эндпоинту GET /items/{}", id);
-        return itemService.getItemById(id);
+    public ItemDto getItemById(@RequestHeader(value = HEADER_USER_ID, required = false) Integer userId,
+                               @PathVariable("id") int itemId) {
+        log.info("Получен запрос к эндпоинту GET /items/{}", itemId);
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping("/search")
@@ -56,7 +67,7 @@ public class ItemController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<ItemDto> updateItem(@RequestHeader(value = HEADER_USER_ID, required = false) Integer userId,
-                                              @RequestBody ItemDto itemDto, @PathVariable("id") int id) {
+                                           @RequestBody ItemDto itemDto, @PathVariable("id") int id) {
         log.info("Получен запрос к эндпоинту PATCH /itemDto");
         itemDto.setId(id);
         return new ResponseEntity<>(itemService.updateItem(itemDto, userId), HttpStatus.OK);
@@ -69,9 +80,9 @@ public class ItemController {
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> handleIncorrectValidation(ValidationException e) {
-        log.warn("При обработке запроса возникло исключение: " + e.getMessage());
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ValidationException> handleIncorrectValidation(ValidationException exception) {
+        log.warn("При обработке запроса возникло исключение: " + exception.getMessage());
+        return new ResponseEntity<>(exception, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
@@ -91,5 +102,4 @@ public class ItemController {
         log.warn("При обработке запроса возникло исключение: " + e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
-
 }
