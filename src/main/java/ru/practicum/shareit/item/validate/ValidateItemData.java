@@ -2,10 +2,9 @@ package ru.practicum.shareit.item.validate;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.InputDataException;
-import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.exception.*;
+import ru.practicum.shareit.item.model.*;
+import ru.practicum.shareit.user.*;
 
 @Slf4j
 @Component
