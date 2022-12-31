@@ -4,19 +4,18 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
 import java.util.List;
 
-@Service
+
 public interface UserService {
- UserDto addUser(UserDto userDto);
 
-UserDto getUser(int id);
+ List<UserDto> getAll();
 
-List<UserDto> getAllUsers();
+ UserDto getById(Long id);
 
-UserDto updateUser(UserDto userDto, int id);
+ UserDto create(UserDto userDto);
 
-void deleteUser(int id);
+ UserDto update(UserDto userDto, Long id);
 
-boolean isContainsUser(int id);
+ void delete(Long id);
 
-boolean isExistEmail(String email);
+
 }

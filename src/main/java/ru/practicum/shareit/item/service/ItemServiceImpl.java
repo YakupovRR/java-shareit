@@ -3,104 +3,169 @@ package ru.practicum.shareit.item.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.InputDataException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.exception.InputExistDataException;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.CommentMapper;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemMapper;
+import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.validate.ValidateItemData;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static ru.practicum.shareit.booking.BookingMapper.toBookingShortDto;
+import static ru.practicum.shareit.booking.BookingStatus.APPROVED;
+import static ru.practicum.shareit.item.CommentMapper.toComment;
+import static ru.practicum.shareit.item.CommentMapper.toCommentDto;
+import static ru.practicum.shareit.item.ItemMapper.toItem;
+import static ru.practicum.shareit.item.ItemMapper.toItemDto;
 
 @Component
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
-    private final UserService userService;
-    private final ValidateItemData validateItemData;
 
-    @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserService userService, ValidateItemData validateItemData) {
+    private final UserRepository userRepository;
+
+    private final BookingRepository bookingRepository;
+
+    private final CommentRepository commentRepository;
+
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository, CommentRepository commentRepository) {
         this.itemRepository = itemRepository;
-        this.userService = userService;
-        this.validateItemData = validateItemData;
+        this.userRepository = userRepository;
+        this.bookingRepository = bookingRepository;
+        this.commentRepository = commentRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public ItemDto addItem(ItemDto itemDto, Integer userId) {
-        Item item = ItemMapper.fromItemDto(itemDto);
-        item.setUserId(userId);
-        if (validateItemData.checkAllData(userId, item, userService)) {
-            item.setId(userId);
-            return ItemMapper.toItemDto(itemRepository.addItem(item));
-        } else {
-            throw new ValidationException("Ошибка во входных данных");
+    public List<ItemDto> getAll(Long userId) {
+        List<Item> items = itemRepository.findAllByOwnerId(userId);
+        List<ItemDto> itemDtoList = items.stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+        itemDtoList.forEach(itemDto -> {
+            itemDto.setLastBooking(bookingRepository.findAllByItemIdOrderByStartAsc(itemDto.getId()).isEmpty() ?
+                    null : toBookingShortDto(bookingRepository.findAllByItemIdOrderByStartAsc(itemDto.getId()).get(0)));
+            itemDto.setNextBooking(itemDto.getLastBooking() == null ?
+                    null : toBookingShortDto(bookingRepository.findAllByItemIdOrderByStartDesc(itemDto.getId()).get(0)));
+            itemDto.setComments(commentRepository.findAllByItemId(itemDto.getId())
+                    .stream().map(CommentMapper::toCommentDto).collect(Collectors.toList()));
+        });
+
+        return itemDtoList;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ItemDto getById(Long id, Long ownerId) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Не найдена вещь с id: " + id));
+        ItemDto itemDto = toItemDto(item);
+        itemDto.setComments(commentRepository.findAllByItemId(id)
+                .stream().map(CommentMapper::toCommentDto).collect(Collectors.toList()));
+        if (item.getOwner().getId().equals(ownerId)) {
+            itemDto.setLastBooking(bookingRepository.findAllByItemIdOrderByStartAsc(id).isEmpty() ? null :
+                    toBookingShortDto(bookingRepository.findAllByItemIdOrderByStartAsc(id).get(0)));
+            itemDto.setNextBooking(itemDto.getLastBooking() == null ?
+                    null : toBookingShortDto(bookingRepository.findAllByItemIdOrderByStartDesc(itemDto.getId())
+                    .get(0)));
         }
+
+        return itemDto;
     }
 
+    @Transactional
     @Override
-    public ItemDto getItemById(int id) {
-        if (isContainItem(id)) {
-            return ItemMapper.toItemDto(itemRepository.getItemById(id));
-        } else {
-            throw new InputDataException("Вещь по id не найдена");
+    public ItemDto create(ItemDto itemDto, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Невозможно создать вещь - " +
+                        "не найден пользователь с id: " + userId));
+        Item item = toItem(itemDto);
+        item.setOwner(user);
+        itemRepository.save(item);
+
+        return toItemDto(item);
+    }
+
+    @Transactional
+    @Override
+    public ItemDto update(ItemDto itemDto, Long id, Long userId) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Не найдена вещь с id: " + id));
+        if (!item.getOwner().getId().equals(userId)) {
+            throw new NotFoundException("Невозможно обновить вещь - у пользователя с id: " + userId + "нет такой вещи");
         }
+        Optional.ofNullable(itemDto.getName()).ifPresent(item::setName);
+        Optional.ofNullable(itemDto.getDescription()).ifPresent(item::setDescription);
+        Optional.ofNullable(itemDto.getAvailable()).ifPresent(item::setAvailable);
+
+        return toItemDto(itemRepository.save(item));
     }
 
+    @Transactional
     @Override
-    public List<ItemDto> getItemsByUserId(int userId) {
-        return itemRepository.getItemsByUserId(userId)
-                .stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+    public void delete(Long id) {
+        itemRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<ItemDto> getItemsBySubString(String text) {
-        return itemRepository.getItemsBySubString(text)
-                .stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ItemDto> getAllItems(Integer userId) {
-        if (userId != null) {
-            return getItemsByUserId(userId);
-        } else {
-            return itemRepository.getAllItems()
-                    .stream()
-                    .map(ItemMapper::toItemDto)
-                    .collect(Collectors.toList());
+    public List<ItemDto> search(String text) {
+        List<ItemDto> searchedItems = new ArrayList<>();
+        if (text.isBlank()) {
+            return searchedItems;
         }
-    }
-
-    @Override
-    public ItemDto updateItem(ItemDto itemDto, Integer userId) {
-        if (userId == null) {
-            throw new ValidationException("Отсутствует id пользователя, создавший данную вещь");
+        for (Item item : itemRepository.findAll()) {
+            if (isSearched(text, item)) {
+                searchedItems.add(toItemDto(item));
+            }
         }
-        Item itemFromDb = itemRepository.getItemById(itemDto.getId());
-        if (itemFromDb.getUserId() == userId) {
-            Item item = ItemMapper.fromItemDto(itemDto);
-            return ItemMapper.toItemDto(itemRepository.updateItem(item));
-        } else {
-            throw new InputDataException("Id пользователя не совпадает с id создавшего вещь пользователя");
+
+        return searchedItems;
+    }
+
+    @Transactional
+    @Override
+    public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Невозможно создать комментарий - " +
+                        "не существует пользователя с id " + userId));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Невозможно создать комментарий - " +
+                        "не существует вещи с id " + itemId));
+        if (bookingRepository.findAllByBookerIdAndItemIdAndStatusEqualsAndEndIsBefore(userId, itemId, APPROVED,
+                LocalDateTime.now()).isEmpty()) {
+            throw new BadRequestException("Невозможно создать комментарий - " +
+                    "вещь не бралась пользователем в аренду или аренда вещи еще не завершена");
         }
+        Comment comment = toComment(commentDto);
+        comment.setItem(item);
+        comment.setAuthor(user);
+        comment.setCreated(LocalDateTime.now());
+        commentRepository.save(comment);
+
+        return toCommentDto(comment);
     }
 
-    @Override
-    public void deleteItem(int id) {
-        itemRepository.deleteItem(id);
-    }
-
-    @Override
-    public boolean isContainItem(int id) {
-        return itemRepository.isContainItem(id);
+    private Boolean isSearched(String text, Item item) {
+        return item.getName().toLowerCase().contains(text.toLowerCase()) ||
+                item.getDescription().toLowerCase().contains(text.toLowerCase()) && item.getAvailable();
     }
 
 }
