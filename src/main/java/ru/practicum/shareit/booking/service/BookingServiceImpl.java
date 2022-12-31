@@ -3,7 +3,7 @@ package ru.practicum.shareit.booking.service;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.BookingMapper;
+import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.booking.BookingMapper.toBooking;
-import static ru.practicum.shareit.booking.BookingMapper.toBookingDto;
-import static ru.practicum.shareit.booking.BookingStatus.*;
+import static ru.practicum.shareit.booking.model.BookingMapper.toBooking;
+import static ru.practicum.shareit.booking.model.BookingMapper.toBookingDto;
+import static ru.practicum.shareit.booking.model.BookingStatus.*;
 
 @Service
 public class BookingServiceImpl implements BookingService {

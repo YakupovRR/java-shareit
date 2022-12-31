@@ -6,12 +6,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.CommentMapper;
+import ru.practicum.shareit.item.model.CommentMapper;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.item.model.ItemMapper;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.booking.BookingMapper.toBookingShortDto;
-import static ru.practicum.shareit.booking.BookingStatus.APPROVED;
-import static ru.practicum.shareit.item.CommentMapper.toComment;
-import static ru.practicum.shareit.item.CommentMapper.toCommentDto;
-import static ru.practicum.shareit.item.ItemMapper.toItem;
-import static ru.practicum.shareit.item.ItemMapper.toItemDto;
+import static ru.practicum.shareit.booking.model.BookingMapper.toBookingShortDto;
+import static ru.practicum.shareit.booking.model.BookingStatus.APPROVED;
+import static ru.practicum.shareit.item.model.CommentMapper.toComment;
+import static ru.practicum.shareit.item.model.CommentMapper.toCommentDto;
+import static ru.practicum.shareit.item.model.ItemMapper.toItem;
+import static ru.practicum.shareit.item.model.ItemMapper.toItemDto;
 
 @Component
 @Slf4j

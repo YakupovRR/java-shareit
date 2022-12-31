@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static ru.practicum.shareit.user.UserMapper.toUser;
-import static ru.practicum.shareit.user.UserMapper.toUserDto;
+import static ru.practicum.shareit.user.model.UserMapper.toUser;
+import static ru.practicum.shareit.user.model.UserMapper.toUserDto;
 
 @Service
 public class UserServiceImpl implements UserService {
