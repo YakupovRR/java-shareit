@@ -2,38 +2,25 @@ package ru.practicum.shareit.item.validate;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.InputDataException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.service.UserService;
 
 @Slf4j
 @Component
 public class ValidateItemData {
 
     private Item item;
-    private Integer userId;
-
-    private UserService userService;
 
     private void setItem(Item item) {
         this.item = item;
     }
 
-    private void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    private void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    public boolean checkAllData(Integer userId, Item item, UserService userService) {
+    public boolean checkAllData(Item item) {
         setItem(item);
-        setUserId(userId);
-        setUserService(userService);
-        return (isCorrectName() && isCorrectDescription() && isCorrectAvailable() && userIdNotNull() &&
-                isContainsUser());
+        if (isCorrectName() && isCorrectDescription() && isCorrectAvailable()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean isCorrectName() {
@@ -56,24 +43,7 @@ public class ValidateItemData {
 
     public boolean isCorrectAvailable() {
         if (item.getAvailable() == null) {
-            log.warn("Ошибка во входных данных. Не заполнено поле доступность вещи");
-            return false;
-        } else {
-            return (item.getAvailable() != null);
-        }
-    }
-
-    public boolean userIdNotNull() {
-        if (userId == null) {
-            throw new ValidationException("Отсутствует id пользователя, создавший данную вещь");
-        } else {
-            return true;
-        }
-    }
-
-    public boolean isContainsUser() {
-        if (!userService.isContainsUser(userId)) {
-            throw new InputDataException("Пользователь с id=" + userId + " не найден");
+           return false;
         } else {
             return true;
         }

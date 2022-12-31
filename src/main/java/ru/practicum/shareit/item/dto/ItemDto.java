@@ -1,29 +1,61 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.practicum.shareit.requests.ItemRequest;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * // TODO .
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ItemDto {
     private int id;
+    @NotBlank
+    @NonNull
     private String name;
+    @NonNull
     private String description;
-    @NotNull
+    @NonNull
     private Boolean available;
-    private int userId;
-    private ItemRequest request;
+    private User owner;
+    private Booking lastBooking;
+    private Booking nextBooking;
+    private Collection<Comment> comments = new ArrayList<>();
 
-    public ItemDto(int id, String name, String description, Boolean available, int userId, ItemRequest request) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.available = available;
-        this.userId = userId;
-        this.request = request;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class User {
+        private int id;
+        private String name;
+        private String email;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    public static class Booking {
+        private int id;
+        private int bookerId;
+        private LocalDateTime start;
+        private LocalDateTime end;
+    }
+
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    public static class Comment {
+        private int id;
+        private String text;
+        private String authorName;
     }
 }
