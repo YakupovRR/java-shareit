@@ -1,13 +1,10 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.InputDataException;
-import ru.practicum.shareit.exception.InputExistDataException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.CommentMapper;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -17,10 +14,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.validate.ValidateItemData;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
