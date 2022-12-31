@@ -8,4 +8,3 @@ public class ValidationException extends RuntimeException {
         this.error = error;
     }
 }
-
