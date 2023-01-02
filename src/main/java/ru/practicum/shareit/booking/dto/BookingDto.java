@@ -1,43 +1,44 @@
-
-
-/*
-Для ревьюера
-Я уже 2 раза переписал приложение. Хз почему, но постман всё проходит, на гите валится
-Прошу извинить, закидываю как есть, после первых новогодних чисел буду спрашивать у наставника
-А пока надо двигаться дальше
- */
-
-
 package ru.practicum.shareit.booking.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.Future;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+/**
+ * // TODO .
+ */
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 @Builder
 public class BookingDto {
-    private Long id;
-
-    @NotNull
-    @Future
+    private int id;
     private LocalDateTime start;
-
-    @NotNull
-    @Future
     private LocalDateTime end;
-
+    private Item item;
+    private User booker;
     private BookingStatus status;
 
-    private User booker;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Item {
+        private int id;
+        private String name;
+        private String description;
+        private boolean available;
+    }
 
-    private Item item;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class User {
+        private int id;
+        private String name;
+        private String email;
+    }
 }

@@ -1,38 +1,61 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import ru.practicum.shareit.booking.dto.BookingShortDto;
-import ru.practicum.shareit.requests.model.ItemRequest;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * // TODO .
  */
-@Getter
-@Setter
-@Builder(toBuilder = true)
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ItemDto {
-    private Long id;
-
+    private int id;
     @NotBlank
+    @NonNull
     private String name;
-
-    @NotBlank
+    @NonNull
     private String description;
-
-    @NotNull
+    @NonNull
     private Boolean available;
+    private User owner;
+    private Booking lastBooking;
+    private Booking nextBooking;
+    private Collection<Comment> comments = new ArrayList<>();
 
-    private ItemRequest request;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class User {
+        private int id;
+        private String name;
+        private String email;
+    }
 
-    private BookingShortDto lastBooking;
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    public static class Booking {
+        private int id;
+        private int bookerId;
+        private LocalDateTime start;
+        private LocalDateTime end;
+    }
 
-    private BookingShortDto nextBooking;
 
-    private List<CommentDto> comments;
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    public static class Comment {
+        private int id;
+        private String text;
+        private String authorName;
+    }
 }
