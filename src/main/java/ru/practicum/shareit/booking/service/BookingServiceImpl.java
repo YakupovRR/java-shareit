@@ -49,9 +49,9 @@ private int bookingId = 1;
         booking.setBooker(new User(userId, null, null));
         booking.setItem(item);
         booking.setStatus(BookingStatus.WAITING);
-        booking.setId(bookingId);
-        log.info("Номер бронирования "+ bookingId);
-        bookingId ++;
+      //  booking.setId(bookingId);
+      //  log.info("Номер бронирования "+ bookingId);
+    //    bookingId ++;
         return bookingRepository.save(booking);
     }
 
