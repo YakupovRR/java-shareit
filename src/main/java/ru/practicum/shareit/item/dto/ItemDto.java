@@ -25,37 +25,9 @@ public class ItemDto {
     private String description;
     @NonNull
     private Boolean available;
-    private User owner;
-    private Booking lastBooking;
-    private Booking nextBooking;
-    private Collection<Comment> comments = new ArrayList<>();
+    private ItemDtoUser owner;
+    private ItemDtoBooking lastBooking;
+    private ItemDtoBooking nextBooking;
+    private Collection<ItemDtoComment> comments = new ArrayList<>();
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class User {
-        private int id;
-        private String name;
-        private String email;
-    }
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Data
-    public static class Booking {
-        private int id;
-        private int bookerId;
-        private LocalDateTime start;
-        private LocalDateTime end;
-    }
-
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Data
-    public static class Comment {
-        private int id;
-        private String text;
-        private String authorName;
-    }
 }

@@ -26,8 +26,6 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final BookingRepository bookingRepository;
 
-    private int bookingId = 1;
-
     @Override
     public Booking createBooking(int userId, Booking booking) {
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -46,13 +44,9 @@ public class BookingServiceImpl implements BookingService {
                 || booking.getEnd().isBefore(booking.getStart())) {
             throw new ValidationException("Ошибка во входных данных по дате");
         }
-
         booking.setBooker(new User(userId, null, null));
         booking.setItem(item);
         booking.setStatus(BookingStatus.WAITING);
-        //  booking.setId(bookingId);
-        //  log.info("Номер бронирования "+ bookingId);
-        //    bookingId ++;
         return bookingRepository.save(booking);
     }
 
