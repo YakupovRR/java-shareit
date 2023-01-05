@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.repository;
+package ru.practicum.shareit.item.storage;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-public class ItemRepositoryImpl implements ItemRepository {
+public class InMemoryItemStorage implements ItemStorage {
 
     private final Map<Integer, Item> items = new HashMap<>();
     private int id = 0;
@@ -34,7 +34,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     public List<Item> getItemsByUserId(int userId) {
         return getAllItems()
                 .stream()
-                .filter(i -> Objects.equals(i.getUserId(), userId))
+                .filter(i -> Objects.equals(i.getOwner().getId(), userId))
                 .collect(Collectors.toList());
     }
 
@@ -57,18 +57,18 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item updateItem(Item item) {
         int idItem = item.getId();
-        Item newItem = items.get(idItem);
+        Item itemDb = items.get(idItem);
         if (item.getName() != null) {
-            newItem.setName(item.getName());
+            itemDb.setName(item.getName());
         }
         if (item.getDescription() != null) {
-            newItem.setDescription(item.getDescription());
+            itemDb.setDescription(item.getDescription());
         }
         if (item.getAvailable() != null) {
-            newItem.setAvailable(item.getAvailable());
+            itemDb.setAvailable(item.getAvailable());
         }
-        items.put(idItem, newItem);
-        return newItem;
+        items.put(idItem, itemDb);
+        return itemDb;
     }
 
     @Override
