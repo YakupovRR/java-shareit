@@ -1,13 +1,11 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * // TODO .
@@ -15,6 +13,7 @@ import java.util.Collection;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ItemDto {
     private int id;
     @NotBlank
@@ -24,9 +23,40 @@ public class ItemDto {
     private String description;
     @NonNull
     private Boolean available;
-    private ItemDtoUser owner;
-    private ItemDtoBooking lastBooking;
-    private ItemDtoBooking nextBooking;
-    private Collection<ItemDtoComment> comments = new ArrayList<>();
+    private User owner;
+    private Booking lastBooking;
+    private Booking nextBooking;
+    private Integer requestId;
+    private List<Comment> comments = new ArrayList<>();
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class User {
+        private int id;
+        private String name;
+        private String email;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @Builder
+    public static class Booking {
+        private int id;
+        private int bookerId;
+        private LocalDateTime start;
+        private LocalDateTime end;
+    }
+
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    public static class Comment {
+        private int id;
+        private String text;
+        private String authorName;
+    }
 }

@@ -1,7 +1,9 @@
 package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -15,97 +17,94 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.validate.ValidateItemData;
+import ru.practicum.shareit.requests.ItemRequestService;
+import ru.practicum.shareit.trait.PageTool;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.model.UserMapper;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
-public class ItemService {
+public class ItemService implements PageTool {
 
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final ValidateItemData validateItemData;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestService itemRequestService;
+    private final ItemMapper itemMapper;
 
-    @Autowired
-    public ItemService(ItemRepository itemRepository, UserService userService, ValidateItemData validateItemData,
-                       BookingRepository bookingRepository, CommentRepository commentRepository) {
-        this.itemRepository = itemRepository;
-        this.userService = userService;
-        this.validateItemData = validateItemData;
-        this.bookingRepository = bookingRepository;
-        this.commentRepository = commentRepository;
-    }
-
-
-    public ItemDto addItem(ItemDto itemDto, Integer userId) {
-        Item item = ItemMapper.fromItemDto(itemDto);
+    public Item addItem(Item item, Integer userId) {
         if (userId == null) {
             throw new ValidationException("Отсутствует id пользователя, создавший данную вещь");
         }
         if (!userService.isContainsUser(userId)) {
             throw new InputDataException("Пользователь с id=" + userId + " не найден в БД");
         }
+        if (item.getRequest() != null) {
+            System.out.println(item.getRequest());
+            itemRequestService.checkItemRequestExistsById(item.getRequest().getId());
+        }
         if (validateItemData.checkAllData(userId, item, userService)) {
-            User user = UserMapper.fromUserDto(userService.getUser(userId));
+            User user = userService.getUser(userId);
             item.setOwner(user);
-            return ItemMapper.toItemDto(itemRepository.save(item));
+            return itemRepository.save(item);
         } else {
             throw new ValidationException("Ошибка во входных данных");
         }
     }
 
-    public ItemDto getItemById(int itemId, int userId) {
+    public Item getItemById(int itemId, int userId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new InputDataException(
                 "Вещь по id не найдена"));
         if (item.getOwner().getId() == userId) {
             setBookings(item);
         }
-        return ItemMapper.toItemDto(item);
+        return item;
     }
 
-    public List<Item> getItemsByUserId(int userId) {
-            return itemRepository.findAllByOwnerId(userId)
+    public Collection<Item> getItemsByUserId(int userId, int from, int size) {
+        userService.isContainsUser(userId);
+        Pageable page = getPage(from, size, "id", Sort.Direction.ASC);
+            return itemRepository.findAllByOwnerId(userId, page)
                     .stream()
                     .map(this::setBookings)
                     .collect(Collectors.toList());
     }
 
-    public List<ItemDto> getItemsBySubString(String text) {
+    public List<Item> getItemsBySubString(String text, int from, int size) {
+        Pageable page = getPage(from, size, "id", Sort.Direction.ASC);
         if (text.isEmpty()) {
             return Collections.emptyList();
         } else {
-            return itemRepository.search(text)
-                    .stream()
-                    .map(ItemMapper::toItemDto)
-                    .collect(Collectors.toList());
+            return itemRepository.search(text, page);
         }
     }
 
-    public List<ItemDto> getAllItems(Integer userId) {
+    public List<ItemDto> getAllItems(Integer userId, int from, int size) {
         if (userId != null) {
-            return getItemsByUserId(userId)
+            return getItemsByUserId(userId, from, size)
                     .stream()
-                    .map(ItemMapper::toItemDto)
+                    .map(itemMapper::toItemDto)
                     .collect(Collectors.toList());
         } else {
             return itemRepository.findAll()
                     .stream()
-                    .map(ItemMapper::toItemDto)
+                    .map(itemMapper::toItemDto)
                     .collect(Collectors.toList());
         }
     }
 
-    public ItemDto updateItem(ItemDto itemDto, Integer userId) {
-        Item itemFromDb = ItemMapper.fromItemDto(getItemById(itemDto.getId(), userId));
+    public Item updateItem(ItemDto itemDto, Integer userId) {
+        Item itemFromDb = getItemById(itemDto.getId(), userId);
 
         if (itemFromDb.getOwner().getId() != userId) {
             throw new InputDataException("Id пользователя не совпадает с id создавшего вещь пользователя");
@@ -115,7 +114,7 @@ public class ItemService {
         Optional.ofNullable(itemDto.getDescription()).ifPresent(itemFromDb::setDescription);
         Optional.ofNullable(itemDto.getAvailable()).ifPresent(itemFromDb::setAvailable);
 
-        return ItemMapper.toItemDto(itemRepository.save(itemFromDb));
+        return itemRepository.save(itemFromDb);
     }
 
     public void deleteItem(int id) {
@@ -127,8 +126,8 @@ public class ItemService {
         if (comment.getText().isEmpty()) {
             throw new ValidationException("Текст отзыва пустой");
         }
-        User user = UserMapper.fromUserDto(userService.getUser(userId));
-        Item item = ItemMapper.fromItemDto(getItemById(itemId, userId));
+        User user = userService.getUser(userId);
+        Item item = getItemById(itemId, userId);
         bookingRepository.findFirstByBookerIdAndItemIdAndStatusAndStartBefore(userId, itemId, BookingStatus.APPROVED,
                         LocalDateTime.now())
                 .orElseThrow(() -> new ValidationException("Ошибка во входных данных"));

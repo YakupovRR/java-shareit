@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.mapper;
 
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoItem;
 import ru.practicum.shareit.booking.dto.BookingDtoUser;
@@ -8,8 +9,9 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
+@Component
 public class BookingMapper {
-    public static CreatedBookingDto toCreatedBookingDto(Booking booking) {
+    public CreatedBookingDto toCreatedBookingDto(Booking booking) {
         return new CreatedBookingDto(
                 booking.getId(),
                 booking.getStart(),
@@ -21,7 +23,7 @@ public class BookingMapper {
         );
     }
 
-    public static BookingDto toBookingDto(Booking booking) {
+    public BookingDto toBookingDto(Booking booking) {
         return BookingDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
@@ -32,7 +34,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static Booking toBooking(CreatedBookingDto bookingDto) {
+    public Booking toBooking(CreatedBookingDto bookingDto) {
         return Booking.builder()
                 .id(bookingDto.getId())
                 .item(new Item(bookingDto.getItemId(), null, null, null, null,
@@ -44,7 +46,7 @@ public class BookingMapper {
                 .build();
     }
 
-    private static BookingDtoUser toUser(User user) {
+    private BookingDtoUser toUser(User user) {
         return new BookingDtoUser(
                 user.getId(),
                 user.getName(),
@@ -52,7 +54,7 @@ public class BookingMapper {
         );
     }
 
-    private static BookingDtoItem toItem(Item item) {
+    private BookingDtoItem toItem(Item item) {
         return new BookingDtoItem(
                 item.getId(),
                 item.getName(),
