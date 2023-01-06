@@ -21,9 +21,9 @@ public class CreatedBookingDto {
     private int itemId;
 
     private BookingStatus status;
-    @NonNull
+
     private Item item;
-    @NonNull
+
     private User booker;
 
 }
