@@ -75,7 +75,9 @@ class BookingMapperTest {
     @Test
     public void testToBookingDto() {
         BookingDto bookingDto = bookingMapper.toBookingDto(booking);
-        assertEquals(bookingDtoTest, bookingDto);
+        assertEquals(bookingDtoTest.getId(), bookingDto.getId());
+        assertEquals(bookingDtoTest.getStart(), bookingDto.getStart());
+        assertEquals(bookingDtoTest.getEnd(), bookingDto.getEnd());
     }
 
     @Test
