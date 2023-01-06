@@ -80,8 +80,8 @@ public class ItemServiceUnitTest {
             LocalDateTime.now(), null);
 
     private final Item mockItem1 = Item.builder().id(1).name("Item")
-            .description("Description").available(true).owner(user1).request(mockItemRequest).
-            comments(new ArrayList<>()).build();
+            .description("Description").available(true).owner(user1).request(mockItemRequest)
+            .comments(new ArrayList<>()).build();
 
     private final Item mockItemWithoutName = Item.builder().id(1)
             .description("Description").available(true).owner(user1).build();
@@ -110,8 +110,8 @@ public class ItemServiceUnitTest {
     @Test
     void testCreateItem() throws ValidationException {
         Mockito.when(userService.isContainsUser(anyInt())).thenReturn(true);
-        Mockito.when(validateItemData.checkAllData(anyInt(), Mockito.any(Item.class), Mockito.any(UserService.class))).
-                thenReturn(true);
+        Mockito.when(validateItemData.checkAllData(anyInt(), Mockito.any(Item.class), Mockito.any(UserService.class)))
+                .thenReturn(true);
         Mockito.when(userService.getUser(anyInt())).thenReturn(user1);
         Mockito.when(itemRepository.save(Mockito.any(Item.class))).thenReturn(mockItem1);
 
@@ -128,8 +128,8 @@ public class ItemServiceUnitTest {
 
     @Test
     void testCreateItemFailValidationItemWithoutAvailable() throws ValidationException {
-        Mockito.when(validateItemData.checkAllData(anyInt(), Mockito.any(Item.class), Mockito.any(UserService.class))).
-                thenReturn(false);
+        Mockito.when(validateItemData.checkAllData(anyInt(), Mockito.any(Item.class), Mockito.any(UserService.class)))
+                .thenReturn(false);
         Mockito.when(userService.isContainsUser(anyInt())).thenReturn(true);
         Exception exception3 = assertThrows(ValidationException.class, () ->
                 itemService.addItem(mockItemWithoutAvailable, user1.getId()));
@@ -140,8 +140,8 @@ public class ItemServiceUnitTest {
     @Test
     void testCreateItemFailValidationItemWithoutName() throws ValidationException {
         Mockito.when(userService.isContainsUser(anyInt())).thenReturn(true);
-        Mockito.when(validateItemData.checkAllData(anyInt(), Mockito.any(Item.class), Mockito.any(UserService.class))).
-                thenReturn(false);
+        Mockito.when(validateItemData.checkAllData(anyInt(), Mockito.any(Item.class), Mockito.any(UserService.class)))
+                .thenReturn(false);
 
         Exception exception = assertThrows(ValidationException.class, () ->
                 itemService.addItem(mockItemWithoutName, user1.getId()));
@@ -152,8 +152,8 @@ public class ItemServiceUnitTest {
     @Test
     void testCreateItemWithoutDesc() throws ValidationException {
         Mockito.when(userService.isContainsUser(anyInt())).thenReturn(true);
-        Mockito.when(validateItemData.checkAllData(anyInt(), Mockito.any(Item.class), Mockito.any(UserService.class))).
-                thenReturn(false);
+        Mockito.when(validateItemData.checkAllData(anyInt(), Mockito.any(Item.class), Mockito.any(UserService.class)))
+                .thenReturn(false);
 
         Exception exception2 = assertThrows(ValidationException.class, () ->
                 itemService.addItem(mockItemWithoutDesc, user1.getId()));
