@@ -12,7 +12,9 @@ public interface BookingService {
 
     Booking findBookingById(int userId, int bookingId);
 
-    Collection<Booking> findAllByBookerId(int userId, String state);
+    Collection<Booking> findAllByBookerId(int userId, String state, int from, int size);
 
-    Collection<Booking> findAllByOwnerId(int userId, String state);
+    Collection<Booking> findAllByOwnerId(int userId, String state, int from, int size);
+
+    void checkBookingState(String result);
 }

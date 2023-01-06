@@ -11,7 +11,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.InputDataException;
-import ru.practicum.shareit.exception.InputExistDataException;
 import ru.practicum.shareit.exception.ValidationErrorResponse;
 import ru.practicum.shareit.exception.ValidationException;
 
@@ -28,47 +27,53 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookingController {
     private static final String HEADER_USER_ID = "X-Sharer-User-Id";
-
+    private static final String FROM = "0";
+    private static final String SIZE = "20";
     private final BookingService bookingService;
+    private final BookingMapper bookingMapper;
 
     @PostMapping
     public CreatedBookingDto createBooking(@RequestHeader(HEADER_USER_ID) int userId,
                                            @Valid @RequestBody CreatedBookingDto bookingDto) {
         log.info("Получен запрос к эндпоинту POST /bookings");
-        Booking booking = bookingService.createBooking(userId, BookingMapper.toBooking(bookingDto));
-        return BookingMapper.toCreatedBookingDto(booking);
+        Booking booking = bookingService.createBooking(userId, bookingMapper.toBooking(bookingDto));
+        return bookingMapper.toCreatedBookingDto(booking);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDto setApprove(@RequestHeader(HEADER_USER_ID) int userId,
                                  @PathVariable int bookingId, @RequestParam boolean approved) {
         log.info("Получен запрос к эндпоинту PATCH /bookingId");
-        return BookingMapper.toBookingDto((bookingService.setApproved(userId, bookingId, approved)));
+        return bookingMapper.toBookingDto((bookingService.setApproved(userId, bookingId, approved)));
     }
 
     @GetMapping("/{bookingId}")
     public BookingDto findBookingById(@RequestHeader(HEADER_USER_ID) int userId, @PathVariable int bookingId) {
         log.info("Получен запрос к эндпоинту GET /bookingId");
-        return BookingMapper.toBookingDto(bookingService.findBookingById(userId, bookingId));
+        return bookingMapper.toBookingDto(bookingService.findBookingById(userId, bookingId));
     }
 
     @GetMapping
     public Collection<BookingDto> findAllByBookerId(@RequestParam(defaultValue = "ALL") String state,
+                                                    @RequestParam(defaultValue = FROM) int from,
+                                                    @RequestParam(defaultValue = SIZE) int size,
                                                     @RequestHeader(HEADER_USER_ID) int userId) {
         log.info("Получен запрос к эндпоинту GET /booking/" + state);
-        return bookingService.findAllByBookerId(userId, state)
+        return bookingService.findAllByBookerId(userId, state, from, size)
                 .stream()
-                .map(BookingMapper::toBookingDto)
+                .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/owner")
     public Collection<BookingDto> findAllByOwnerId(@RequestHeader(HEADER_USER_ID) int userId,
+                                                   @RequestParam(defaultValue = FROM) int from,
+                                                   @RequestParam(defaultValue = SIZE) int size,
                                                    @RequestParam(defaultValue = "ALL") String state) {
         log.info("Получен запрос к эндпоинту GET /owner/" + state);
-        return bookingService.findAllByOwnerId(userId, state)
+        return bookingService.findAllByOwnerId(userId, state, from, size)
                 .stream()
-                .map(BookingMapper::toBookingDto)
+                .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
@@ -88,12 +93,6 @@ public class BookingController {
     public ResponseEntity<String> handleNotFoundException(InputDataException e) {
         log.warn("При обработке запроса возникло исключение: " + e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<String> handleConflictDataException(InputExistDataException e) {
-        log.warn("При обработке запроса возникло исключение: " + e.getMessage());
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
 }

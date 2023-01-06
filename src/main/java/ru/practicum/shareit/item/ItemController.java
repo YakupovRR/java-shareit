@@ -6,14 +6,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.InputDataException;
-import ru.practicum.shareit.exception.InputExistDataException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * // TODO .
@@ -24,45 +27,62 @@ import java.util.List;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
     private static final String HEADER_USER_ID = "X-Sharer-User-Id";
 
     @Autowired
-    public ItemController(ItemService itemService) {
+    public ItemController(ItemService itemService, ItemMapper itemMapper, CommentMapper commentMapper) {
         this.itemService = itemService;
+        this.itemMapper = itemMapper;
+        this.commentMapper = commentMapper;
     }
 
     @PostMapping
     public ResponseEntity<ItemDto> addItem(@RequestHeader(value = HEADER_USER_ID, required = false) Integer userId,
                                            @RequestBody ItemDto itemDto) {
         log.info("Получен запрос к эндпоинту: POST /items");
-        return new ResponseEntity<>(itemService.addItem(itemDto, userId), HttpStatus.CREATED);
+        Item itemCreated = itemService.addItem(itemMapper.fromItemDto(itemDto), userId);
+        return new ResponseEntity<>(itemMapper.toItemDto(itemCreated), HttpStatus.CREATED);
     }
 
     @PostMapping("/{itemId}/comment")
     public CommentDto addComment(@RequestHeader(HEADER_USER_ID) int userId, @PathVariable int itemId,
                                  @RequestBody CommentDto commentDto) {
         log.info("Получен запрос к эндпоинту: POST /{itemId}/comment");
-        Comment comment = itemService.addComment(userId, itemId, CommentMapper.toComment(commentDto));
-        return CommentMapper.toCommentDto(comment);
+        Comment comment = itemService.addComment(userId, itemId, commentMapper.toComment(commentDto));
+        return commentMapper.toCommentDto(comment);
     }
 
     @GetMapping
-    public List<ItemDto> getAllItem(@RequestHeader(value = HEADER_USER_ID, required = false) Integer userId) {
+    public Collection<ItemDto> getAllItemByUserId(@RequestHeader(value = HEADER_USER_ID, required = false) Integer userId,
+                                                  @RequestParam(defaultValue = "0") int from,
+                                                  @RequestParam(defaultValue = "20") int size) {
         log.info("Получен запрос к эндпоинту: GET /items, user id = " + userId);
-        return itemService.getAllItems(userId);
+        return itemService.getItemsByUserId(userId, from, size)
+                .stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     public ItemDto getItemById(@RequestHeader(value = HEADER_USER_ID, required = false) Integer userId,
                                @PathVariable("id") int itemId) {
         log.info("Получен запрос к эндпоинту GET /items/{}", itemId);
-        return itemService.getItemById(itemId, userId);
+        Item item = itemService.getItemById(itemId, userId);
+        return itemMapper.toItemDto(item);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ItemDto>> getItemsBySubstring(@RequestParam String text) {
+    public ResponseEntity<List<ItemDto>> getItemsBySubstring(@RequestParam String text,
+                                                             @RequestParam(defaultValue = "0") int from,
+                                                             @RequestParam(defaultValue = "20") int size) {
         log.info("Получен запрос к эндпоинту GET /items/search " + text);
-        return new ResponseEntity<>(itemService.getItemsBySubString(text), HttpStatus.OK);
+        List<ItemDto> itemsDto = itemService.getItemsBySubString(text, from, size)
+                .stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(itemsDto, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
@@ -70,7 +90,8 @@ public class ItemController {
                                            @RequestBody ItemDto itemDto, @PathVariable("id") int id) {
         log.info("Получен запрос к эндпоинту PATCH /itemDto");
         itemDto.setId(id);
-        return new ResponseEntity<>(itemService.updateItem(itemDto, userId), HttpStatus.OK);
+        ItemDto itemFromDb = itemMapper.toItemDto(itemService.updateItem(itemDto, userId));
+        return new ResponseEntity<>(itemFromDb, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -97,9 +118,4 @@ public class ItemController {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<String> handleConflictDataException(InputExistDataException e) {
-        log.warn("При обработке запроса возникло исключение: " + e.getMessage());
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-    }
 }
