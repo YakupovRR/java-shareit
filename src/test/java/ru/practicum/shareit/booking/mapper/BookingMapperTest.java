@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoItem;
+import ru.practicum.shareit.booking.dto.BookingDtoUser;
 import ru.practicum.shareit.booking.dto.CreatedBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -52,8 +54,8 @@ class BookingMapperTest {
             .id(1)
             .start(localDateTime.plusDays(1))
             .end(localDateTime.plusDays(2))
-            .item(new BookingDto.Item(1, "Сверло", "Для дрели", true))
-            .booker(new BookingDto.User(1, "Mike", "ab@ya.ru"))
+            .item(new BookingDtoItem(1, "Сверло", "Для дрели", true))
+            .booker(new BookingDtoUser(1, "Mike", "ab@ya.ru"))
             .status(BookingStatus.WAITING)
             .build();
 
