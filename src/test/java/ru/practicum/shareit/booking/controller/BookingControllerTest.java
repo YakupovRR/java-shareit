@@ -12,6 +12,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoItem;
+import ru.practicum.shareit.booking.dto.BookingDtoUser;
 import ru.practicum.shareit.booking.dto.CreatedBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -46,6 +48,7 @@ class BookingControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -85,8 +88,8 @@ class BookingControllerTest {
     private final BookingDto mockBookingDto = BookingDto.builder()
             .id(1).start(LocalDateTime.now().plusDays(5))
             .end(LocalDateTime.now().plusDays(6))
-            .item(BookingDto.Item.builder().id(1).build())
-            .booker(BookingDto.User.builder().id(1).build())
+            .item(BookingDtoItem.builder().id(1).build())
+            .booker(BookingDtoUser.builder().id(1).build())
             .status(BookingStatus.WAITING)
             .build();
 
