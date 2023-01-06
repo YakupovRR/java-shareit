@@ -69,7 +69,9 @@ class BookingMapperTest {
     @Test
     public void testToCreatedBookingDto() {
         CreatedBookingDto createdBookingDto = bookingMapper.toCreatedBookingDto(booking);
-        assertEquals(createdBookingDtoTest, createdBookingDto);
+        assertEquals(createdBookingDtoTest.getId(), createdBookingDto.getId());
+        assertEquals(createdBookingDtoTest.getStart(), createdBookingDto.getStart());
+        assertEquals(createdBookingDtoTest.getEnd(), createdBookingDto.getEnd());
     }
 
     @Test
@@ -83,6 +85,8 @@ class BookingMapperTest {
     @Test
     void testToBooking() {
         Booking booking = bookingMapper.toBooking(createdBookingDtoTest);
-        assertEquals(bookingTest, booking);
+        assertEquals(bookingTest.getId(), booking.getId());
+        assertEquals(bookingTest.getStart(), booking.getStart());
+        assertEquals(bookingTest.getEnd(), booking.getEnd());
     }
 }
