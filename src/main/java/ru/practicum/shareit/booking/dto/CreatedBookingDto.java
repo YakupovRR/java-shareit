@@ -19,7 +19,7 @@ public class CreatedBookingDto {
     private LocalDateTime end;
     @NonNull
     private int itemId;
-    @NonNull
+
     private BookingStatus status;
     @NonNull
     private Item item;
