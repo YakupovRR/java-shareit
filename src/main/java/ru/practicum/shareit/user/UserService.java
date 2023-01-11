@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.InputDataException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -17,45 +17,41 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final ValidateUserData validateUserData;
-
-    @Autowired
-    public UserService(UserRepository userRepository, ValidateUserData validateUserData) {
-        this.userRepository = userRepository;
-        this.validateUserData = validateUserData;
-    }
+    private final UserMapper userMapper;
 
     public UserDto addUser(UserDto userDto) {
-        User user = UserMapper.fromUserDto(userDto);
+        User user = userMapper.fromUserDto(userDto);
         if (validateUserData.checkAllData(user)) {
-            return UserMapper.toUserDto(userRepository.save(user));
+            return userMapper.toUserDto(userRepository.save(user));
         } else {
             log.warn("Запрос к эндпоинту POST /users не обработан.");
             throw new ValidationException("Одно или несколько условий не выполняются");
         }
     }
 
-    public UserDto getUser(int id) {
-        return UserMapper.toUserDto(userRepository.findById(id).orElseThrow(() -> new InputDataException(
-                "Пользователь с таким id не найден")));
+    public User getUser(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new InputDataException(
+                "Пользователь с таким id не найден"));
     }
 
     public List<UserDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(UserMapper::toUserDto)
+                .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     public UserDto updateUser(UserDto userDto, int id) throws InputDataException {
-        User user = UserMapper.fromUserDto(userDto);
-        User userDb = UserMapper.fromUserDto(getUser(id));
+        User user = userMapper.fromUserDto(userDto);
+        User userDb = getUser(id);
         Optional.ofNullable(user.getEmail()).ifPresent(userDb::setEmail);
         Optional.ofNullable(user.getName()).ifPresent(userDb::setName);
-        return UserMapper.toUserDto(userRepository.save(userDb));
+        return userMapper.toUserDto(userRepository.save(userDb));
     }
 
     public void deleteUser(int id) {
